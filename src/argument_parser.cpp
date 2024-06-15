@@ -1,13 +1,18 @@
 #include "include/argument_parser.h"
 
-auto ArgumentParser::Parse(int argc, char *argv)
+auto ArgumentParser::Parse(int argc, char *argv[])
     -> std::optional<std::vector<CommandPair>> {
 
+  if (argc == 1) {
+    // No arguments besides executable name
+    return std::nullopt;
+  }
+
   std::vector<CommandPair> command_pairs;
-  int i = 0;
+  int i = 1; // i = 0 is the name of the executable
 
   while (i < argc) {
-    std::string arg = std::to_string(argv[i]);
+    std::string arg = argv[i];
     std::string name = "";
     size_t pos = 0;
 
@@ -36,7 +41,8 @@ auto ArgumentParser::Parse(int argc, char *argv)
     size_t count = 0;
     for (int j = i + 1; (j < argc) && (args.size() < command.num_of_args);
          j++) {
-      args.push_back(std::to_string(argv[j]));
+      args.push_back(argv[j]);
+      i++;
     }
 
     // Check if required number of args was satisfied

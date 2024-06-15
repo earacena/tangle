@@ -31,9 +31,14 @@ FetchContent_MakeAvailable(Catch2)
 
 # Add tests
 add_executable(journal_test tests/journal_test.cpp src/journal.cpp)
+add_executable(argument_parser_test tests/argument_parser_test.cpp src/argument_parser.cpp)
 target_include_directories(journal_test PUBLIC src/include)
+target_include_directories(argument_parser_test PUBLIC src/include)
 target_link_libraries(journal_test PRIVATE Catch2::Catch2WithMain)
+target_link_libraries(argument_parser_test PRIVATE Catch2::Catch2WithMain)
 
 # Add source code directory
 add_subdirectory(src)
 
+# Add executable directory
+# add_subdirectory(apps)

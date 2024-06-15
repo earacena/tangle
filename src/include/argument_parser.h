@@ -26,7 +26,7 @@ public:
   ArgumentParser(std::map<std::string, Command> command_table)
       : command_table(std::move(command_table)) {}
 
-  auto Parse(int argc, char *argv) -> std::optional<std::vector<CommandPair>>;
+  auto Parse(int argc, char **argv) -> std::optional<std::vector<CommandPair>>;
 
 private:
   std::map<std::string, Command> command_table;
