@@ -1,9 +1,10 @@
+#include "../src/include/journal.h"
+
 #include <ctime>
 #include <filesystem>
 #include <iostream>
 #include <random>
 
-#include "../src/include/journal.h"
 #include "catch2/catch_test_macros.hpp"
 
 auto Prepare() -> void {
@@ -16,8 +17,9 @@ auto Prepare() -> void {
 auto GenerateEntry(int id, int random_content_size) -> JournalEntry {
   // Generates a variable length entry
 
-  std::string char_set = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0"
-                         "123456789!@#$%^&*(),./;'[]-=|{}";
+  std::string char_set =
+      "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0"
+      "123456789!@#$%^&*(),./;'[]-=|{}";
 
   // prepare random engine for picking random chars from character set
   std::random_device rd;
@@ -72,7 +74,7 @@ TEST_CASE("Storing and loading entries", "[disk]") {
 
     std::vector<JournalEntry> entries;
     for (int i = 0; i < 100; i++) {
-      entries.push_back(std::move(GenerateEntry(i, distrib(gen))));
+      entries.push_back(GenerateEntry(i, distrib(gen)));
     }
 
     // Store journal entries
