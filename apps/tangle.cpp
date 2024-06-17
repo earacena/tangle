@@ -29,8 +29,18 @@ int main(int argc, char **argv) {
         // }
       });
 
+  auto list_command = std::make_shared<Command>(
+      "l", "list", "Lists all entries.",
+      "Lists all the entries stored in journal file.", 0,
+      [](Journal &journal, const std::vector<std::string> &args) {
+        journal.ListAllEntries();
+      });
+
   std::map<std::string, std::shared_ptr<Command>> command_table = {
-      {"c", create_command}, {"create", create_command}};
+      {"c", create_command},
+      {"create", create_command},
+      {"l", list_command},
+      {"list", list_command}};
 
   auto argparse = ArgumentParser(command_table);
 
