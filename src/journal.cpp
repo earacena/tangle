@@ -23,6 +23,7 @@ auto JournalEntry::Store(std::fstream &fs) -> void {
   date_arr[24] = '\0';
 
   // Write journal entry using file stream
+  fs.write(reinterpret_cast<char *>(&is_chunk), sizeof(bool));
   fs.write(reinterpret_cast<char *>(&id), sizeof(int));
   fs.write(reinterpret_cast<char *>(&content_size), sizeof(int));
   fs.write(date_arr, 25);
@@ -37,6 +38,7 @@ auto JournalEntry::Load(std::fstream &fs) -> void {
   char date_arr[25];
 
   // Read data from binary file
+  fs.read(reinterpret_cast<char *>(&is_chunk), sizeof(bool));
   fs.read(reinterpret_cast<char *>(&id), sizeof(int));
   fs.read(reinterpret_cast<char *>(&content_size), sizeof(int));
   fs.read(date_arr, 25);
@@ -65,7 +67,7 @@ auto Journal::CreateEntry(std::string &content) -> bool {
   }
 
   for (auto chunk : split_contents) {
-    JournalEntry entry = {num_of_entries_, chunk};
+    JournalEntry entry = {true, num_of_entries_, chunk};
     entries_.push_back(entry);
     dm_.WriteEntry(entry);
     ++num_of_entries_;
@@ -118,7 +120,13 @@ auto DiskManager::ReadEntries() -> std::vector<JournalEntry> {
   while (journal_io_.peek() != EOF) {
     JournalEntry entry = {};
     entry.Load(journal_io_);
-    entries.push_back(std::move(entry));
+
+    if (entry.is_chunk) {
+      entries.back().content += entry.content;
+    } else {
+      entries.push_back(std::move(entry));
+    }
+
     pos += offset;
     journal_io_.seekg(pos);
   }
