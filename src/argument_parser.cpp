@@ -37,20 +37,20 @@ auto ArgumentParser::Parse(int argc, char *argv[])
 
     // Check and track possible arguments to command
     std::vector<std::string> args;
-    for (int j = i + 1; (j < argc) && (args.size() < command.num_of_args);
+    for (int j = i + 1; (j < argc) && (args.size() < command->num_of_args);
          j++) {
       args.push_back(argv[j]);
       i++;
     }
 
     // Check if required number of args was satisfied
-    if (command.num_of_args != args.size()) {
+    if (command->num_of_args != args.size()) {
       return std::nullopt;
     }
 
     // store result
     command_pairs.push_back({
-        std::move(command),
+        command,
         std::move(args),
     });
 
@@ -63,17 +63,16 @@ auto ArgumentParser::Parse(int argc, char *argv[])
 
 auto ArgumentParser::PrintUsage() -> void {
   Command command;
-  std::unordered_map<std::string, bool> seen = {};
+
+  std::cout
+      << "tangle - A encrypted commandline journaling tool written in C++20.\n";
+  std::cout << "Usage:\n";
 
   for (auto it = std::begin(command_table); it != std::end(command_table);
        ++it) {
     auto command = it->second;
 
-    if (seen.find(command.short_name) == seen.end()) {
-      std::cout << std::format("-{}, --{}\t\t{}\n", command.short_name,
-                               command.long_name, command.long_description);
-
-      seen[command.short_name] = true;
-    }
+    std::cout << std::format("-{}, --{}\t\t{}\n", command->short_name,
+                             command->long_name, command->long_description);
   }
 }

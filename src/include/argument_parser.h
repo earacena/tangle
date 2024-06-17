@@ -20,18 +20,18 @@ struct Command {
 };
 
 struct CommandPair {
-  Command command;
+  std::shared_ptr<Command> command;
   std::vector<std::string> args;
 };
 
 class ArgumentParser {
  public:
-  ArgumentParser(std::map<std::string, Command> command_table)
+  ArgumentParser(std::map<std::string, std::shared_ptr<Command>> command_table)
       : command_table(std::move(command_table)) {}
 
   auto Parse(int argc, char **argv) -> std::optional<std::vector<CommandPair>>;
   auto PrintUsage() -> void;
 
  private:
-  std::map<std::string, Command> command_table;
+  std::map<std::string, std::shared_ptr<Command>> command_table;
 };
