@@ -55,6 +55,7 @@ class DiskManager {
   DiskManager(const std::string &filename);
   auto WriteEntry(JournalEntry &entry) -> void;
   auto ReadEntries() -> std::vector<JournalEntry>;
+  auto ReadEntry(int id) -> JournalEntry;
 
  private:
   // Journal file
@@ -64,12 +65,16 @@ class DiskManager {
 
 class Journal {
  public:
-  Journal(DiskManager &dm) : dm_(std::move(dm)){};
-  auto CreateEntry(std::string &content) -> bool;
+  Journal(DiskManager &dm) : dm_(std::move(dm)) { LoadAllEntries(); };
 
-  std::vector<JournalEntry> entries;
+  auto CreateEntry(std::string &content) -> bool;
+  auto LoadAllEntries() -> void;
+  auto GetEntry(int id) -> JournalEntry;
+  auto GetAllEntries() -> std::vector<JournalEntry>;
+  auto ListAllEntries() -> void;
 
  private:
   DiskManager dm_;
   int num_of_entries_ = 0;
+  std::vector<JournalEntry> entries_;
 };

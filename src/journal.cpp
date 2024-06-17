@@ -1,5 +1,8 @@
 #include "include/journal.h"
 
+#include <sstream>
+#include <stdexcept>
+
 auto JournalEntry::Store(std::fstream &fs) -> void {
   // Pad content if necessary to make stored entries uniform
   std::string padded_content = content;
@@ -63,13 +66,34 @@ auto Journal::CreateEntry(std::string &content) -> bool {
 
   for (auto chunk : split_contents) {
     JournalEntry entry = {num_of_entries_, chunk};
-    entries.push_back(entry);
+    entries_.push_back(entry);
     dm_.WriteEntry(entry);
     ++num_of_entries_;
   }
 
   return true;
 }
+
+auto Journal::LoadAllEntries() -> void {
+  entries_ = dm_.ReadEntries();
+  num_of_entries_ = entries_.size();
+}
+
+auto Journal::GetAllEntries() -> std::vector<JournalEntry> { return entries_; }
+
+auto Journal::ListAllEntries() -> void {
+  // Used for converting time to string
+  std::stringstream ss;
+  for (const auto &entry : entries_) {
+    ss = std::stringstream();  // Reset stringstream
+    auto date_string = std::put_time(std::localtime(&entry.timestamp), "%c");
+    ss << date_string;
+    std::cout << std::format("\nid: {}\ntimestamp: {}\n-------\n{}\n-------\n",
+                             entry.id, ss.str(), entry.content);
+  }
+}
+
+auto Journal::GetEntry(int id) -> JournalEntry { return dm_.ReadEntry(id); }
 
 DiskManager::DiskManager(const std::string &filename) {
   // Open journal file stream
@@ -100,4 +124,20 @@ auto DiskManager::ReadEntries() -> std::vector<JournalEntry> {
   }
 
   return entries;
+}
+
+auto DiskManager::ReadEntry(int id) -> JournalEntry {
+  int pos = id * JOURNAL_ENTRY_SIZE;
+
+  journal_io_.seekg(pos);
+
+  if (journal_io_.eof()) {
+    throw std::runtime_error(
+        "entry not found at expected position of journal file (EOF)");
+  }
+
+  JournalEntry entry = {};
+  entry.Load(journal_io_);
+
+  return entry;
 }
