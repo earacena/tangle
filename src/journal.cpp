@@ -27,7 +27,6 @@ auto JournalEntry::Store(std::fstream &fs) -> void {
 }
 
 auto JournalEntry::Load(std::fstream &fs) -> void {
-
   int content_size = 0;
   std::vector<char> padded_content = {};
   padded_content.resize(CONTENT_MAX_SIZE + 1);
@@ -73,6 +72,7 @@ auto Journal::CreateEntry(std::string &content) -> bool {
 }
 
 DiskManager::DiskManager(const std::string &filename) {
+  // Open journal file stream
   journal_io_.open(filename, std::ios::binary | std::ios::in | std::ios::out |
                                  std::ios::app);
 
@@ -80,8 +80,6 @@ DiskManager::DiskManager(const std::string &filename) {
     throw std::exception();
   }
 }
-
-DiskManager::~DiskManager() { journal_io_.close(); }
 
 auto DiskManager::WriteEntry(JournalEntry &entry) -> void {
   entry.Store(journal_io_);
