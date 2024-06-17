@@ -2,14 +2,13 @@
 
 auto ArgumentParser::Parse(int argc, char *argv[])
     -> std::optional<std::vector<CommandPair>> {
-
   if (argc == 1) {
     // No arguments besides executable name
     return std::nullopt;
   }
 
   std::vector<CommandPair> command_pairs;
-  int i = 1; // i = 0 is the name of the executable
+  int i = 1;  // i = 0 is the name of the executable
 
   while (i < argc) {
     std::string arg = argv[i];
@@ -38,7 +37,6 @@ auto ArgumentParser::Parse(int argc, char *argv[])
 
     // Check and track possible arguments to command
     std::vector<std::string> args;
-    size_t count = 0;
     for (int j = i + 1; (j < argc) && (args.size() < command.num_of_args);
          j++) {
       args.push_back(argv[j]);
@@ -61,4 +59,21 @@ auto ArgumentParser::Parse(int argc, char *argv[])
   }
 
   return command_pairs;
+}
+
+auto ArgumentParser::PrintUsage() -> void {
+  Command command;
+  std::unordered_map<std::string, bool> seen = {};
+
+  for (auto it = std::begin(command_table); it != std::end(command_table);
+       ++it) {
+    auto command = it->second;
+
+    if (seen.find(command.short_name) == seen.end()) {
+      std::cout << std::format("-{}, --{}\t\t{}\n", command.short_name,
+                               command.long_name, command.long_description);
+
+      seen[command.short_name] = true;
+    }
+  }
 }
