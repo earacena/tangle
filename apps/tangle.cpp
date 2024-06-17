@@ -6,6 +6,9 @@
 #include "../src/include/argument_parser.h"
 
 int main(int argc, char **argv) {
+  // Create journal and components
+  DiskManager dm{"main.journal"};
+  Journal j{dm};
 
   Command create_command = {
       "c",
@@ -13,7 +16,7 @@ int main(int argc, char **argv) {
       "Creates a new entry.",
       "Creates and stores a new entry in the journal file.",
       1,
-      [](const std::vector<std::string> &args) {
+      [](Journal &journal, const std::vector<std::string> &args) {
         std::cout << "Creating entry using args: \n";
 
         for (const auto &arg : args) {
@@ -26,7 +29,19 @@ int main(int argc, char **argv) {
         std::cout << '\n';
       }};
 
-  std::map<std::string, Command> command_table = {{"c", create_command}};
+  std::map<std::string, Command> command_table = {{"c", create_command},
+                                                  {"create", create_command}};
 
   auto argparse = ArgumentParser(command_table);
+
+  auto result = argparse.Parse(argc, argv);
+
+  if (!result.has_value()) {
+    argparse.PrintUsage();
+  } else {
+    auto pairs = result.value();
+    for (const auto &pair : pairs) {
+      pair.command.apply_fn(j, pair.args);
+    }
+  }
 }
