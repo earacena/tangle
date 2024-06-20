@@ -1,4 +1,4 @@
-#include "../src/include/journal.h"
+#include "../src/include/disk_manager.h"
 
 #include <ctime>
 #include <filesystem>
@@ -49,7 +49,7 @@ TEST_CASE("Storing and loading entries", "[disk]") {
     // Store entry
     dm.WriteEntry(entry);
 
-    // Load entry
+    // Load all entries
     auto loaded_entries = dm.ReadEntries();
 
     // Check if entry is the same
@@ -58,6 +58,12 @@ TEST_CASE("Storing and loading entries", "[disk]") {
     REQUIRE(std::difftime(loaded_entries.at(0).timestamp, expected_timestamp) ==
             0);
     REQUIRE(loaded_entries.at(0).content == "This is an entry");
+
+    // Load only the target entry
+    auto loaded_entry = dm.ReadEntry(0);
+    REQUIRE(loaded_entry.id == 0);
+    REQUIRE(std::difftime(loaded_entry.timestamp, expected_timestamp) == 0);
+    REQUIRE(loaded_entry.content == "This is an entry");
   }
 
   SECTION("Storing and loading variable length entries within max size") {
@@ -95,4 +101,41 @@ TEST_CASE("Storing and loading entries", "[disk]") {
       REQUIRE(entries.at(i).content == read_entries.at(i).content);
     }
   }
+
+  // SECTION("Storing and loading a larger than max size entry") {
+  //   Prepare();
+
+  //   auto entry1 = GenerateEntry(0, CONTENT_MAX_SIZE);
+  //   auto entry2 = GenerateEntry(1, CONTENT_MAX_SIZE);
+  //   auto entry3 = GenerateEntry(2, CONTENT_MAX_SIZE);
+
+  //   DiskManager dm = {"test.journal"};
+
+  //   dm.WriteEntry(entry1);
+  //   dm.WriteEntry(entry2);
+  //   dm.WriteEntry(entry3);
+
+  //   REQUIRE(std::filesystem::file_size("test.journal") ==
+  //           JOURNAL_ENTRY_SIZE * 3);
+
+  //   auto read_entries = dm.ReadEntries();
+
+  //   REQUIRE(read_entries.size() == 3);
+  //   REQUIRE(read_entries.at(0).is_chunk == true);
+  //   REQUIRE(read_entries.at(0).content ==
+  //           entry1.content.substr(0, CONTENT_MAX_SIZE));
+  //   REQUIRE(read_entries.at(1).is_chunk == true);
+  //   REQUIRE(read_entries.at(1).content ==
+  //           entry2.content.substr(CONTENT_MAX_SIZE, CONTENT_MAX_SIZE));
+  //   REQUIRE(read_entries.at(2).is_chunk == true);
+  //   REQUIRE(read_entries.at(2).content ==
+  //           entry3.content.substr(CONTENT_MAX_SIZE * 2, CONTENT_MAX_SIZE));
+
+  //   auto read_entry = dm.ReadEntry(0);
+  //   REQUIRE(read_entry.id == entry1.id);
+  //   REQUIRE(read_entry.timestamp == entry1.timestamp);
+  //   REQUIRE(read_entry.is_chunk == entry1.is_chunk);
+  //   REQUIRE(read_entry.content ==
+  //           entry1.content + entry2.content + entry3.content);
+  // }
 }
