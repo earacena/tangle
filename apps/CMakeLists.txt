@@ -3,4 +3,6 @@ target_compile_features(tangle PRIVATE cxx_std_20)
 
 # Link libraries
 target_link_libraries(tangle PRIVATE journal)
+target_link_libraries(tangle PRIVATE journal_entry)
 target_link_libraries(tangle PRIVATE argparse)
+target_link_libraries(tangle PRIVATE disk_manager)
