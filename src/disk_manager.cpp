@@ -12,24 +12,20 @@ auto DiskManager::WriteEntry(JournalEntry &entry) -> void {
 
 auto DiskManager::ReadEntries() -> std::vector<JournalEntry> {
   OpenFileStream();
-
-  int pos = 0;
-  int offset = JOURNAL_ENTRY_SIZE;
   std::vector<JournalEntry> entries = {};
-
   journal_io_.seekg(0);
+
+  // Cannot use journal_io_.eof() for this loop because eof() only checks if a
+  // "read" was done after EOF, when we need to stop before reading EOF
   while (journal_io_.peek() != EOF) {
     JournalEntry entry = {};
     entry.Load(journal_io_);
 
-    if (entry.is_chunk) {
+    if (entries.size() > 0 && entry.is_chunk && entry.id == entries.back().id) {
       entries.back().content += entry.content;
     } else {
       entries.push_back(std::move(entry));
     }
-
-    pos += offset;
-    journal_io_.seekg(pos);
   }
 
   CloseFileStream();
@@ -40,43 +36,38 @@ auto DiskManager::ReadEntries() -> std::vector<JournalEntry> {
 auto DiskManager::ReadEntry(int id) -> JournalEntry {
   OpenFileStream();
 
-  int pos = id * JOURNAL_ENTRY_SIZE;
+  journal_io_.seekg(0);
 
-  journal_io_.seekg(pos);
-  std::cout << "file size: " << std::filesystem::file_size("test.journal")
-            << "\n";
+  auto entry_not_found = true;
+  JournalEntry current_entry = {};
+  while (journal_io_.peek() != EOF) {
+    current_entry.Load(journal_io_);
 
-  if (journal_io_.eof()) {
-    throw std::runtime_error(std::format(
-        "entry not found at expected position {} of journal file (EOF)\n",
-        pos));
+    if (current_entry.id == id) {
+      entry_not_found = false;
+      break;
+    }
   }
 
-  JournalEntry entry = {};
-  entry.Load(journal_io_);
+  if (entry_not_found) {
+    throw std::runtime_error("error: entry not found, reached eof");
+  }
 
-  if (entry.is_chunk) {
-    // Entry was split into checks, check next entries for remaining chunks
-    // auto following_chunk = ReadEntry(id + 1);
-    // entry.content += following_chunk.content;
-
-    pos += JOURNAL_ENTRY_SIZE;
-    while (!journal_io_.eof()) {
+  if (current_entry.is_chunk) {
+    std::vector<std::string> chunk_contents = {};
+    while (journal_io_.peek() != EOF) {
       JournalEntry chunk = {};
       chunk.Load(journal_io_);
 
-      if (chunk.is_chunk) {
-        entry.content += chunk.content;
-      } else {
-        break;
+      if (chunk.is_chunk && chunk.id == current_entry.id) {
+        current_entry.content += chunk.content;
       }
-      pos += JOURNAL_ENTRY_SIZE;
     }
   }
 
   CloseFileStream();
 
-  return entry;
+  return current_entry;
 }
 
 auto DiskManager::OpenFileStream() -> void {
