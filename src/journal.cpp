@@ -10,7 +10,7 @@ auto Journal::CreateEntry(std::string &content) -> int {
     }
 
     for (auto chunk : split_contents) {
-      JournalEntry entry = {true, num_of_entries_, chunk};
+      JournalEntry entry = {true, id, chunk};
       dm_.WriteEntry(entry);
       entries_.push_back(entry);
       ++num_of_entries_;
@@ -19,7 +19,7 @@ auto Journal::CreateEntry(std::string &content) -> int {
     return id;
   }
 
-  JournalEntry entry = {false, num_of_entries_, content};
+  JournalEntry entry = {false, id, content};
   dm_.WriteEntry(entry);
   entries_.push_back(entry);
   ++num_of_entries_;
