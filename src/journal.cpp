@@ -40,11 +40,9 @@ auto Journal::ListAllEntries() -> void {
   // Used for converting time to string
   std::stringstream ss;
   for (const auto &entry : entries_) {
-    ss = std::stringstream();  // Reset stringstream
-    auto date_string = std::put_time(std::localtime(&entry.timestamp), "%c");
-    ss << date_string;
     std::cout << std::format("\nid: {}\ntimestamp: {}\n-------\n{}\n-------\n",
-                             entry.id, ss.str(), entry.content);
+                             entry.id, SecondsToDateString(entry.timestamp),
+                             entry.content);
   }
 }
 

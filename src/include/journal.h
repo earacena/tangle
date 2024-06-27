@@ -9,6 +9,7 @@
 
 #include "disk_manager.h"
 #include "journal_entry.h"
+#include "util.h"
 
 class Journal {
  public:
