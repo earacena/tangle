@@ -24,6 +24,12 @@ add_library(
   include/journal_entry.h
 )
 
+add_library(
+  config_parser
+  config_parser.cpp
+  include/config_parser.h
+)
+
 target_compile_features(journal PUBLIC cxx_std_20)
 target_include_directories(journal PUBLIC include)
 
@@ -36,3 +42,5 @@ target_include_directories(journal_entry PUBLIC include)
 target_compile_features(disk_manager PUBLIC cxx_std_20)
 target_include_directories(disk_manager PUBLIC include)
 
+target_compile_features(config_parser PUBLIC cxx_std_20)
+target_include_directories(config_parser PUBLIC include)

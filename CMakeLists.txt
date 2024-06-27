@@ -35,18 +35,21 @@ add_executable(argument_parser_test tests/argument_parser_test.cpp src/argument_
 add_executable(command_test tests/command_test.cpp src/argument_parser.cpp src/journal.cpp src/disk_manager.cpp src/journal_entry.cpp)
 add_executable(journal_entry_test tests/journal_entry_test.cpp src/journal_entry.cpp)
 add_executable(util_test tests/util_test.cpp)
+add_executable(config_parser_test tests/config_parser_test.cpp src/config_parser.cpp)
 
 target_include_directories(disk_manager_test PUBLIC src/include)
 target_include_directories(argument_parser_test PUBLIC src/include)
 target_include_directories(command_test PUBLIC src/include)
 target_include_directories(journal_entry_test PUBLIC src/include)
 target_include_directories(util_test PUBLIC src/include)
+target_include_directories(config_parser_test PUBLIC src/include)
 
 target_link_libraries(disk_manager_test PRIVATE Catch2::Catch2WithMain)
 target_link_libraries(argument_parser_test PRIVATE Catch2::Catch2WithMain)
 target_link_libraries(command_test PRIVATE Catch2::Catch2WithMain)
 target_link_libraries(journal_entry_test PRIVATE Catch2::Catch2WithMain)
 target_link_libraries(util_test PRIVATE Catch2::Catch2WithMain)
+target_link_libraries(config_parser_test PRIVATE Catch2::Catch2WithMain)
 
 # Add source code directory
 add_subdirectory(src)
