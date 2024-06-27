@@ -1,9 +1,15 @@
 #pragma once
 
 #include <chrono>
+#include <cstdlib>
 #include <ctime>
 #include <stdexcept>
 #include <string>
+
+inline auto GetEnvVarString(const std::string& env_var) -> std::string {
+  const auto value = std::getenv(env_var.data());
+  return std::string(value != nullptr ? value : "");
+}
 
 inline auto SecondsToDateString(std::time_t time) -> std::string {
   std::vector<char> date_arr = {};
